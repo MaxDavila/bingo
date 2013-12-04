@@ -13,21 +13,23 @@ var bingo;
 client.on('connect', function() {
   console.log('connected!');
   client.emit('register', registerData);
+
+
+  client.on('card', function(payload) {
+    console.log('card received!', payload);
+    bingo = new Bingo(payload);
+
+    client.on('number', function(number) {
+      console.log('number received', number);
+      bingo.markRaffledNumber(number);
+      console.log(bingo.card.slots);
+      if (bingo.isWinner()) {
+        client.emit('bingo');
+      }
+    });
+  });
 });
 
-client.on('card', function(payload) {
-  console.log('card received!', payload);
-  bingo = new Bingo(payload);
-});
-
-client.on('number', function(number) {
-  console.log('number received', number);
-  bingo.markRaffledNumber(number);
-  console.log(bingo.card.slots);
-  if (bingo.isWinner()) {
-    client.emit('bingo');
-  }
-});
 
 client.on('win', function() {
   console.log('WIN!');
